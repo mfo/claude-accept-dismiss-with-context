@@ -8,6 +8,7 @@ A native macOS notification popup for [Claude Code](https://docs.anthropic.com/e
 
 - **Native floating panel** — SwiftUI HUD-style notification (no ugly AppleScript dialogs)
 - **Conversation context** — Shows the last user/assistant exchange so you know what's going on
+- **Approve from notification** — Accept permission prompts directly without switching windows (sends Enter keystroke via AppleScript)
 - **Focus terminal tab** — Jumps to the exact terminal tab running Claude (Terminal.app, iTerm2, Ghostty, WezTerm, VS Code)
 - **Discrete sound** — Configurable macOS system sound (default: Purr)
 - **Auto-dismiss** — Disappears after 15 seconds
@@ -17,6 +18,7 @@ A native macOS notification popup for [Claude Code](https://docs.anthropic.com/e
 - macOS (Swift compiler, SwiftUI, Cocoa frameworks)
 - Python 3 (for transcript context extraction)
 - `jq` (for JSON parsing in the shell wrapper)
+- **Accessibility permission** for Terminal.app (required for the Approve button — System Settings > Privacy & Security > Accessibility)
 
 ## Install
 
@@ -71,7 +73,8 @@ make clean && make install
 1. Claude Code fires the `Notification` hook when it needs user input (permission prompts, etc.)
 2. `notify.sh` captures the TTY, extracts conversation context from the transcript, and launches the Swift binary
 3. The SwiftUI panel displays the notification with context and action buttons
-4. **Focus** activates the correct terminal tab via AppleScript
+4. **Approve** focuses the terminal tab and sends an Enter keystroke via AppleScript to accept the permission
+5. **Focus** activates the correct terminal tab via AppleScript
 
 ## Supported terminals
 
