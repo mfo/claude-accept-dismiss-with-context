@@ -1,6 +1,9 @@
 #!/bin/bash
 # Claude Code notification hook - wrapper for compiled Swift notifier
 
+# Debug: log that hook fired
+date >> /tmp/claude-notify-hook.log
+
 # Read stdin once (hook payload JSON)
 INPUT=$(cat)
 
@@ -19,4 +22,7 @@ if [ -n "$TRANSCRIPT" ]; then
     export CLAUDE_CONTEXT="$CONTEXT"
 fi
 
-echo "$INPUT" | /Users/mfo/.claude/hooks/claude-notify
+echo "$INPUT" | /Users/mfo/.claude/hooks/claude-notify 2>/tmp/claude-notify-stderr.log &
+# Don't block the hook - let the notification run in background
+disown
+exit 0

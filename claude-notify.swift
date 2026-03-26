@@ -33,13 +33,53 @@ func getTty() -> String? {
     return nil
 }
 
-func sendToTty(_ text: String) {
-    guard let tty = getTty() else { return }
-    guard let fh = FileHandle(forWritingAtPath: tty) else { return }
-    if let data = text.data(using: .utf8) {
-        fh.write(data)
+func sendKeystrokeToTerminal(_ keystroke: String) {
+    let env = ProcessInfo.processInfo.environment
+    let termProgram = env["TERM_PROGRAM"] ?? ""
+
+    let script: String
+    switch termProgram {
+    case "iTerm.app":
+        script = """
+        tell application "iTerm2"
+            tell current session of current window
+                write text "\(keystroke)" newline NO
+            end tell
+        end tell
+        """
+    case "Apple_Terminal":
+        guard let tty = getTty() else { return }
+        // Focus the right tab first, then send keystroke
+        script = """
+        tell application "Terminal"
+            activate
+            repeat with w in windows
+                repeat with t in tabs of w
+                    if tty of t contains "\(tty)" then
+                        set selected tab of w to t
+                        set index of w to 1
+                    end if
+                end repeat
+            end repeat
+            tell application "System Events"
+                tell process "Terminal"
+                    keystroke return
+                end tell
+            end tell
+        end tell
+        """
+    default:
+        return
     }
-    fh.closeFile()
+
+    let appleScript = NSAppleScript(source: script)
+    var error: NSDictionary?
+    appleScript?.executeAndReturnError(&error)
+    if let error = error {
+        try? "keystroke error: \(error)\n".write(toFile: "/tmp/claude-notify-approve.log", atomically: true, encoding: .utf8)
+    } else {
+        try? "keystroke sent ok\n".write(toFile: "/tmp/claude-notify-approve.log", atomically: true, encoding: .utf8)
+    }
 }
 
 func getContext() -> String? {
@@ -305,7 +345,7 @@ class NotificationPanelController {
             context: context,
             isPermissionPrompt: isPermissionPrompt,
             onApprove: { [weak self] in
-                sendToTty("y\n")
+                sendKeystrokeToTerminal("\r")
                 self?.dismiss()
             },
             onFocus: { [weak self] in
