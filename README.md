@@ -4,6 +4,14 @@ A native macOS notification popup for [Claude Code](https://docs.anthropic.com/e
 
 ![macOS only](https://img.shields.io/badge/platform-macOS-lightgrey)
 
+
+
+https://github.com/user-attachments/assets/914b5c93-9026-4537-8b14-14ad1e8b8d0d
+
+
+
+
+
 ## Features
 
 - **Native floating panel** — SwiftUI HUD-style notification (no ugly AppleScript dialogs)
